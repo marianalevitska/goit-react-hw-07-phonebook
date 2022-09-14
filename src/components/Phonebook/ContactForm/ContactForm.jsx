@@ -1,68 +1,63 @@
-import { memo, useCallback, useState } from 'react';
-// import { nanoid } from 'nanoid';
+import { useState, memo } from 'react';
 
-import stl from './contactForm.module.css';
+import PropTypes from 'prop-types';
+
+import s from './contactForm.module.css';
+
 function ContactForm({ onSubmit }) {
   const [state, setState] = useState({
     name: '',
     number: '',
   });
 
-  const handleChange = useCallback(
-    ({ target }) => {
-      const { name, value } = target;
-      setState({ ...state, [name]: value });
-    },
-    [setState, state]
-  );
+  const handleChange = ({ target }) => {
+    const { name, value } = target;
+    setState({
+      ...state,
+      [name]: value,
+    });
+  };
 
-  const handleSubmit = useCallback(
-    e => {
-      e.preventDefault();
-      onSubmit(state);
-      setState({ name: '', number: '' });
-    },
-    [setState, state, onSubmit]
-  );
-
+  const handleSubmit = e => {
+    e.preventDefault();
+    onSubmit(state);
+    setState({ name: '', number: '' });
+  };
   const { name, number } = state;
   return (
-    <form className={stl.form} onSubmit={handleSubmit}>
-      <label htmlFor="name" className={stl.label}>
+    <form onSubmit={handleSubmit} className={s.box}>
+      <label htmlFor="name" className={s.text}>
         Name
       </label>
       <input
-        placeholder="Please enter your name"
-        value={name}
-        id="name"
-        className={stl.input_line}
         type="text"
+        value={name}
         name="name"
-        pattern="^[a-zA-Za-яА-Я]+(([' -][a-zA-Za-яА-Я ])?[a-zA-Za-яА-Я]*)*$"
-        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-        required
+        id="name"
+        placeholder="Enter Name"
+        className={s.input}
         onChange={handleChange}
       />
-      <label htmlFor="tel" className={stl.label}>
-        Contacts
+
+      <label htmlFor="number" className={s.text}>
+        Number
       </label>
       <input
-        className={stl.input_line}
+        type="text"
         value={number}
-        placeholder="Please enter your phone number"
-        id="tel"
-        type="tel"
         name="number"
-        pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-        title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-        required
-        onChange={handleChange} /* function call */
+        id="number"
+        placeholder="Enter Number"
+        className={s.input}
+        onChange={handleChange}
       />
-      <button type="submit" className={stl.button}>
-        Add contact
-      </button>
+      <button className={s.btn}>Add Contact</button>
     </form>
   );
 }
+
+ContactForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 
 export default memo(ContactForm);

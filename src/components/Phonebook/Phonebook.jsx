@@ -1,80 +1,88 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useSelector, shallowEqual, useDispatch } from 'react-redux';
 
 import ContactForm from './ContactForm';
-import ContactList from './ContactList';
 import Filter from './Filter';
+import ContactList from './ContactList';
 
-import stl from './phonebook.module.css';
+import {
+  getContacts,
+  getLoading,
+  getError,
+} from 'redux/Contacts/contacts-selectors';
 
-import { getContacts } from '../../redux/contacts/contacts-selectors';
-import { actions } from 'redux/contacts/contacts-slice';
+import * as operations from 'redux/Contacts/contacts-operation';
 
-function Phonebook() {
+import s from './phoneBook.module.css';
+
+function PhoneBook() {
   const contacts = useSelector(getContacts, shallowEqual);
+  const isLoading = useSelector(getLoading, shallowEqual);
+  const error = useSelector(getError, shallowEqual);
 
   const dispatch = useDispatch();
 
   const [filter, setFilter] = useState('');
-  // get files from local storage
+
+  useEffect(() => {
+    dispatch(operations.getContacts());
+  }, [dispatch]);
 
   const addContacts = useCallback(
     data => {
-      const newContactName = data.name.toLowerCase();
-      const isDublicate = contacts.find(
-        item => item.name.toLowerCase() === newContactName
-      );
-      if (isDublicate) {
-        alert(`${data.name} is already in your phonebook`);
-        return;
-      }
-
-      return dispatch(actions.addContacts(data));
+      return dispatch(operations.addContact(data));
     },
-    [contacts, dispatch]
-  );
-
-  const deleteContact = useCallback(
-    id => dispatch(actions.deleteContacts(id)),
     [dispatch]
   );
 
-  const filterChange = useCallback(
-    ({ target }) => {
-      const { value } = target;
-      setFilter(value);
+  const deleteContacts = useCallback(
+    id => {
+      return dispatch(operations.removeContact(id));
+    },
+    [dispatch]
+  );
+
+  const changeFilter = useCallback(
+    e => {
+      setFilter(e.target.value);
     },
     [setFilter]
   );
 
-  const getContactsFiltered = useCallback(() => {
+  const getFilteredContacts = () => {
     if (!filter) {
       return contacts;
     }
-
     const filterRequest = filter.toLowerCase();
     const filteredContacts = contacts.filter(({ name }) => {
-      return name.toLowerCase().includes(filterRequest);
+      const res = name.toLowerCase().includes(filterRequest);
+      return res;
     });
-    return filteredContacts;
-  }, [filter, contacts]);
 
-  const filteredResult = getContactsFiltered();
+    return filteredContacts;
+  };
 
   return (
-    <div>
+    <div className={s.container}>
+      <h1 className={s.title}>Phonebook</h1>
       <ContactForm onSubmit={addContacts} />
 
-      <Filter filter={filter} onFilter={filterChange} />
-      {!filteredResult.length && (
-        <p className={stl.alert}>
-          Життя має в точності ту цінність, якою ми хочемо її наділити - хочеш
-          знайти запис, спочатку збережи його
-        </p>
+      <h2 className={s.title}>Contacts</h2>
+
+      <Filter onChange={changeFilter} filter={filter} />
+
+      {error && <div className={s.error}>{error}</div>}
+
+      {isLoading && <div className={s.loading}>Loading...</div>}
+
+      {contacts.length > 0 && (
+        <ContactList
+          contacts={getFilteredContacts()}
+          deleteContacts={deleteContacts}
+        />
       )}
-      <ContactList contacts={filteredResult} onDelete={deleteContact} />
     </div>
   );
 }
 
-export default Phonebook;
+export default PhoneBook;

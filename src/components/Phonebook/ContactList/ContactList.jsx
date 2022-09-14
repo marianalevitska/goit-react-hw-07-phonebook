@@ -1,14 +1,18 @@
-import { memo } from 'react';
 import PropTypes from 'prop-types';
 
-import stl from './contactList.module.css';
-import ContactItem from './ContactItem';
+import ContactListItem from './ContactListItem';
 
-function ContactList({ contacts, onDelete }) {
-  const elements = contacts.map(({ id, name, number }) => (
-    <ContactItem key={id} options={[id, name, number]} onDelete={onDelete} />
+import s from './contactList.module.css';
+
+function ContactList({ contacts, deleteContacts }) {
+  const elements = contacts.map(({ name, id, number }) => (
+    <ContactListItem
+      key={id}
+      options={[name, number, id]}
+      deleteContacts={deleteContacts}
+    />
   ));
-  return <ul className={stl.list}>{elements}</ul>;
+  return <ul className={s.contacts}>{elements}</ul>;
 }
 
 ContactList.defaultProps = {
@@ -16,14 +20,14 @@ ContactList.defaultProps = {
 };
 
 ContactList.propTypes = {
+  deleteContacts: PropTypes.func.isRequired,
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
       number: PropTypes.string.isRequired,
     })
-  ).isRequired,
-  onDelete: PropTypes.func.isRequired,
+  ),
 };
 
-export default memo(ContactList);
+export default ContactList;

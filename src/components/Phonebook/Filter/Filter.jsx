@@ -1,28 +1,30 @@
 import { memo } from 'react';
 import PropTypes from 'prop-types';
-import stl from './filter.module.css';
 
-function Filter({ filter, onFilter }) {
+import s from './filter.module.css';
+
+function Filter({ onChange, filter }) {
   return (
-    <div className={stl.form}>
-      <label htmlFor="filter" className={stl.label}>
-        Find contacts
+    <>
+      <label htmlFor="filter" className={s.text}>
+        Find by Name
       </label>
       <input
-        value={filter}
         type="text"
-        placeholder="Find contacts by name"
+        value={filter}
+        name="filter"
         id="filter"
-        className={stl.input}
-        onChange={onFilter}
+        placeholder="Find Contact by Name"
+        className={s.input}
+        onChange={onChange}
       />
-    </div>
+    </>
   );
 }
 
 Filter.propTypes = {
+  onChange: PropTypes.func.isRequired,
   filter: PropTypes.string.isRequired,
-  onFilter: PropTypes.func.isRequired,
 };
 
 export default memo(Filter);
